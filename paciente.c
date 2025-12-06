@@ -4,38 +4,29 @@
 #include <stdbool.h>
 #include <string.h>
 
-//EM COMPARAÇÃO COM O PROJETO 1, AGORA O PACIENTE NAO TEM MAIS O HISTORICO
-//ELE TEM UM INTEIRO Q INDICA O NIVEL DE PRIORIDADE
-
 typedef struct paciente_
 {
     int ID;
     char nome[100];
-    int tamanhoNome;
-    int prioridade; //inteiro q indica o nivel de prioridade
 }PACIENTE;
-
-int get_prioridade(PACIENTE *paciente)
-{
-    return (paciente->prioridade);
-}
 
 int get_ID(PACIENTE *paciente) //função para retornar o ID do paciente
 {
-    return (paciente->ID);
+    if (paciente != NULL)
+    {
+        return (paciente->ID);
+    }
 }
 
 char *get_nome_paciente(PACIENTE *paciente) //função para retornar o nome do paciente
 {
-    return (paciente->nome);
+    if (paciente != NULL)
+    {
+        return (paciente->nome);
+    }
 }
 
-int get_tamanho_nome_paciente(PACIENTE *paciente) //retorna o tamanho do nome do paciente
-{
-    return (paciente->tamanhoNome);
-}
-
-bool apagar_paciente(PACIENTE **paciente)
+bool apagar_paciente(PACIENTE **paciente) //função que deleta o paciente do sistema
 {
     if (*paciente != NULL)
     {
@@ -55,9 +46,16 @@ PACIENTE* criar_paciente(int id, char *nome, int prioridade) //cria um paciente
     {
         paciente->ID = id;
         strcpy(paciente->nome, nome);
-        paciente->tamanhoNome = strlen(nome);
-        paciente->prioridade = prioridade;
         return paciente;
     }
     return NULL;
+}
+
+void imprimir_paciente(PACIENTE* paciente) //imprime as informaçoes sobre o paciente 
+{
+    if (paciente != NULL)
+    {
+        printf("ID: %d\n Nome: %s", paciente->ID, paciente->nome);
+    }
+    return;
 }
