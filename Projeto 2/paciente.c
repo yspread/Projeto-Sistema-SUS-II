@@ -1,4 +1,6 @@
 #include "paciente.h"
+#include "avl.h"
+#include "fila.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -8,7 +10,7 @@ typedef struct paciente_
 {
     int ID;
     char nome[100];
-}PACIENTE;
+} PACIENTE;
 
 int get_ID(PACIENTE *paciente) //função para retornar o ID do paciente
 {

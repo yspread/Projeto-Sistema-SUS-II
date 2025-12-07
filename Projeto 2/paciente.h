@@ -1,6 +1,7 @@
 #ifndef PACIENTE_H
     #define PACIENTE_H
     #include <stdbool.h>
+    
     //nao colocamos a prioridade no tad paciente, mas sim no nó da priority queue, por não ser
     //uma característica intrinseca do paciente
     //o paciente funciona como o TAD item do sistema

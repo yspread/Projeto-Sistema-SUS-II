@@ -1,0 +1,138 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "paciente.h"
+
+#define TAM 250
+#define min_prio 5
+#define max(a, b) ((a > b) ? a : b)
+
+typedef struct no_{ //na fila, armazenaremos do paciente apenas o id, para economizar memória (além da urgência e tempo de chegada)
+    int id, urgencia;
+    long long int chegada;
+}NO;
+
+typedef struct pq_{
+    int fim;
+    long long int ultima_chegada;
+    NO* tree[TAM];
+}PQ;
+
+PQ* criar_pq()
+{
+    PQ* aux = malloc(sizeof(PQ));
+    if(aux != NULL){
+        aux->fim = -1;
+        aux->ultima_chegada = 0;
+        for(int i = 0; i < TAM; i++){
+            aux->tree[i] = malloc(sizeof(NO));
+            if(aux->tree[i] != NULL)aux->tree[i]->urgencia = -1;
+        }
+    }
+    return aux;
+}
+
+void pq_apagar(PQ** pq)
+{
+    for(int i = 0; i < TAM; i++){
+        free((*pq)->tree[i]);
+        (*pq)->tree[i] = NULL;
+    }
+    free(*pq);
+    *pq = NULL;
+}
+
+bool pq_cheia(PQ* pq)
+{
+    return pq->fim == TAM - 1;
+}
+
+bool pq_vazia(PQ* pq)
+{
+    return pq->fim == -1;
+}
+
+int maior_filho(PQ* pq, int a)
+{
+    int e = a*2 + 1, d = a*2 + 2;
+    if(pq->tree[e]->urgencia > pq->tree[d]->urgencia)return e;
+    else if(pq->tree[e]->urgencia < pq->tree[d]->urgencia)return d;
+    else{
+        if(pq->tree[e]->chegada > pq->tree[d]->chegada)return e;
+        else return d;
+    }
+}
+
+void pq_swap(PQ* pq, int a, int b)
+{
+    NO* aux = pq->tree[a];
+    pq->tree[a] = pq->tree[b];
+    pq->tree[b] = aux;
+}
+
+void pq_fix_up(PQ* pq)
+{
+    int cur = pq->fim;
+    int pai = (cur - 1)/2;
+    while(cur > 0){
+        if(pq->tree[cur]->urgencia < pq->tree[pai]->urgencia)break;
+        if(pq->tree[cur]->urgencia == pq->tree[pai]->urgencia && pq->tree[cur]->chegada < pq->tree[pai]->chegada)break;
+        pq_swap(pq, cur, pai);
+        cur = pai;
+        pai = (cur - 1)/2;
+    }
+}
+
+void pq_fix_down(PQ* pq)
+{
+    int cur = 0;
+    int filho = maior_filho(pq, cur);
+    while(pq->tree[filho]->urgencia != -1){
+        if(pq->tree[cur]->urgencia > pq->tree[filho]->urgencia)break;
+        if(pq->tree[cur]->urgencia == pq->tree[filho]->urgencia && pq->tree[cur]->chegada > pq->tree[filho]->chegada)break;
+        pq_swap(pq, cur, filho);
+        cur = filho;
+        filho = maior_filho(pq, cur); 
+    }
+}
+
+bool pq_enfileirar(PQ* pq, int id, int urgencia)
+{
+    if(pq_cheia(pq))return false;
+    pq->ultima_chegada++;
+    pq->fim++;
+    pq->tree[pq->fim]->id = id;
+    pq->tree[pq->fim]->urgencia = min_prio - urgencia + 1;
+    pq->tree[pq->fim]->chegada = pq->ultima_chegada;
+    pq_fix_up(pq);
+    return true;
+}
+
+int pq_desenfileirar(PQ* pq)
+{
+    if(pq_vazia(pq))return -1;
+    int saida = pq->tree[0]->id;
+    pq->tree[0] = pq->tree[pq->fim];
+    pq->tree[pq->fim]->urgencia = -1;
+    pq->fim--;
+    pq_fix_down(pq);
+    return saida;
+}
+
+void print_pq(PQ* pq)
+{
+    PQ* copy = criar_pq();
+    copy->fim = pq->fim;
+    copy->ultima_chegada = pq->ultima_chegada;
+    for(int i = 0; i < TAM; i++){
+        copy->tree[i] = malloc(sizeof(NO));
+        copy->tree[i]->chegada = pq->tree[i]->chegada;
+        copy->tree[i]->id = pq->tree[i]->id;
+        copy->tree[i]->urgencia = pq->tree[i]->urgencia;
+    }
+
+    while(!pq_vazia(copy)){
+        printf("%d\n", pq_desenfileirar(copy));
+    }
+    pq_apagar(copy);
+}
