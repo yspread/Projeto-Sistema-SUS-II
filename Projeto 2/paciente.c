@@ -57,7 +57,7 @@ void imprimir_paciente(PACIENTE* paciente) //imprime as informaçoes sobre o pac
 {
     if (paciente != NULL)
     {
-        printf("ID: %d\n Nome: %s", paciente->ID, paciente->nome);
+        printf("ID: %d\n Nome: %s\n", paciente->ID, paciente->nome);
     }
     return;
 }

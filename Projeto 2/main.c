@@ -9,9 +9,9 @@
 
 /* 1-problema da busca
     2- problema da busca
-    3-
-    4-
-    5-
+    3-pronto
+    4-pronto
+    5-pronto
     6-pronto
     7-pronto
 */
@@ -22,8 +22,8 @@ void clean_buffer();
 int main()
 {
     AVL *avl = avl_criar_arvore();
-    PQ *fila = criar_fila();
-    if (load(&avl, &fila) == false)
+    PQ *pq = criar_pq();
+    if (load(&avl, &pq) == false)
     {
         printf("Não foi possível abrir os arquivos salvos.");
     }
@@ -81,13 +81,13 @@ int main()
                 {
                     printf("Paciente já registrado.\n");
                 }
-                if (pq_cheia(fila) == false)    //VERIFICAR COMO BUSCAR O PACIENTE NA FILA, SÓ FALTA ISSO PRA ESSA FUNÇÃO
+                if (pq_cheia(pq) == false)    //VERIFICAR COMO BUSCAR O PACIENTE NA FILA, SÓ FALTA ISSO PRA ESSA FUNÇÃO
                 {
-                    if(buscar_paciente_fila(fila, id)){
+                    if(buscar_paciente_fila(pq, id)){
                         printf("Paciente já está na fila.\n");
                     }
                     else{
-                        pq_enfileirar(fila, id);
+                        pq_enfileirar(pq, id, prioridade);
                         printf("Paciente inserido na fila para a triagem.\n");
                     }
                 }
@@ -104,7 +104,7 @@ int main()
                 int id;
                 scanf("%d", &id);
                 clean_buffer();
-                if(buscar_paciente_fila(fila, id)){ //VER AQUI A FUNÇÃO DE BUSCA TBM
+                if(buscar_paciente_fila(pq, id)){ //VER AQUI A FUNÇÃO DE BUSCA TBM
                     printf("Paciente está na fila, nao é possivel registrar seu óbito.\n");
                 }
                 else {
@@ -122,82 +122,47 @@ int main()
 
             case 3://listar pacientes
             {
-                printf("Digite o ID do paciente a adicionar um procedimento no historico:");
-                int id;
-                scanf("%d", &id);
-                clean_buffer();
-                PACIENTE *paciente = buscar_paciente(lista, id);
-                if (paciente == NULL)
+                if (avl_vazia(avl))
                 {
-                    printf("Nao existe um paciente com esse ID em nosso sistema\n");
+                    printf("Nenhum paciente registrado no sistema.\n");
+                    break;
                 }
                 else
                 {
-                    char texto[100];
-                    printf("Digite o procedimento a ser adicionado:");
-                    fgets(texto, 100, stdin);
-                    texto[strcspn(texto, "\n")] = '\0';
-                    PROCEDIMENTO *procedimento = criar_procedimento(texto);
-                    if (inserir_procedimento(get_historico(paciente), procedimento))
-                    {
-                        printf("Procedimento inserido no historico do paciente com sucesso\n");
-                    }
-                    else
-                    {
-                        printf("Nao foi possivel inserir o procedimento.\n");
-                    }
+                    imprimir_avl(avl);
                 }
                 break;
             }
 
             case 4://buscar paciente por ID
             {
-                printf("Digite o ID do paciente a remover um procedimento de seu historico (sera removido o procedimento mais recente):");
+                printf("Digite o ID do paciente");
                 int id;
                 scanf("%d", &id);
                 clean_buffer();
-                PACIENTE *paciente = buscar_paciente(lista, id);
+                PACIENTE *paciente = avl_busca(avl, id);
                 if (paciente == NULL)
                 {
                     printf("Nao existe um paciente com esse ID em nosso sistema\n");
                 }
                 else
                 {
-                    if (historico_vazio(get_historico(paciente)))
-                    {
-                        printf("O historico do paciente esta vazio.\n");
-                    }
-                    else
-                    {
-                        if (retirar_procedimento(get_historico(paciente)))
-                        {
-                            printf("Procedimento retirado com sucesso.\n");
-                        }
-                        else
-                        {
-                            printf("Não foi possivel retirar o procedimento.\n");
-                        }
-                    }    
+                    imprimir_paciente(paciente);
                 }
                 break;
             }
 
             case 5: //mostrar fila de espera
             {
-                int id = pq_desenfileirar(fila);
-                if (id == -1)
+                if (print_pq(pq) == false)
                 {
                     printf("A fila esta vazia.\n");
-                }
-                else
-                {
-                    printf("Paciente de ID %d recebeu alta do hospital.\n", id);
                 }
                 break;
             }
             case 6: //dar alta a um paciente
             {
-                int id = pq_desenfileirar(fila);
+                int id = pq_desenfileirar(pq);
                 if (id == -1)
                 {
                     printf("A fila esta vazia.\n");
@@ -212,10 +177,10 @@ int main()
             case 7: //sai o sistema
             {
                 printf("Saindo do sistema.\n");
-                if (save(avl, fila) == false)
+                if (save(avl, pq) == false)
                 {
                     printf("Não foi possível salvar os dados no sistema\n");
-                    pq_apagar(&fila);
+                    pq_apagar(&pq);
                     avl_apagar(&avl);
                 }
                 return 0;

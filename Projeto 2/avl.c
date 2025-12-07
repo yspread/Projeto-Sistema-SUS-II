@@ -210,3 +210,12 @@ void imprimir_avl(AVL* arvore) //imprime a avl, seguindo o percurso em ordem
 {
     imprimir_emordem(arvore->raiz);
 }
+
+bool avl_vazia(AVL* arvore) //verifica se a avl está vazia
+{
+    if (arvore == NULL || arvore->raiz == NULL)
+    {
+        return true;
+    }
+    else return false;
+}

@@ -4,7 +4,6 @@
 #include "paciente.h"
 
 #define TAM 250
-#define min_prio 5
 #define max(a, b) ((a > b) ? a : b)
 
 typedef struct no_{ //na fila, armazenaremos do paciente apenas o id, para economizar memória (além da urgência e tempo de chegada)
@@ -102,7 +101,7 @@ bool pq_enfileirar(PQ* pq, int id, int urgencia)
     pq->ultima_chegada++;
     pq->fim++;
     pq->tree[pq->fim]->id = id;
-    pq->tree[pq->fim]->urgencia = min_prio - urgencia + 1;
+    pq->tree[pq->fim]->urgencia = urgencia;
     pq->tree[pq->fim]->chegada = pq->ultima_chegada;
     pq_fix_up(pq);
     return true;
@@ -119,8 +118,9 @@ int pq_desenfileirar(PQ* pq)
     return saida;
 }
 
-void print_pq(PQ* pq)
+bool print_pq(PQ* pq)
 {
+    if (pq_vazia(pq)) return false;
     PQ* copy = criar_pq();
     copy->fim = pq->fim;
     copy->ultima_chegada = pq->ultima_chegada;
@@ -130,9 +130,14 @@ void print_pq(PQ* pq)
         copy->tree[i]->id = pq->tree[i]->id;
         copy->tree[i]->urgencia = pq->tree[i]->urgencia;
     }
-
     while(!pq_vazia(copy)){
         printf("%d\n", pq_desenfileirar(copy));
     }
     pq_apagar(copy);
+    return true;
+}
+
+int get_fim(PQ *pq)
+{
+    return pq->fim;
 }
