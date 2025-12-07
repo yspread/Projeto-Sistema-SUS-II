@@ -26,7 +26,7 @@ PQ* criar_pq()
         aux->ultima_chegada = 0;
         for(int i = 0; i < TAM; i++){
             aux->tree[i] = malloc(sizeof(NO));
-            if(aux->tree[i] != NULL)aux->tree[i]->urgencia = -1;
+            if(aux->tree[i] != NULL)aux->tree[i]->urgencia = 6;
         }
     }
     return aux;
@@ -75,7 +75,7 @@ void pq_fix_up(PQ* pq)
     int cur = pq->fim;
     int pai = (cur - 1)/2;
     while(cur > 0){
-        if(pq->tree[cur]->urgencia < pq->tree[pai]->urgencia)break;
+        if(pq->tree[cur]->urgencia > pq->tree[pai]->urgencia)break;
         if(pq->tree[cur]->urgencia == pq->tree[pai]->urgencia && pq->tree[cur]->chegada < pq->tree[pai]->chegada)break;
         pq_swap(pq, cur, pai);
         cur = pai;
@@ -88,7 +88,7 @@ void pq_fix_down(PQ* pq)
     int cur = 0;
     int filho = maior_filho(pq, cur);
     while(pq->tree[filho]->urgencia != -1){
-        if(pq->tree[cur]->urgencia > pq->tree[filho]->urgencia)break;
+        if(pq->tree[cur]->urgencia < pq->tree[filho]->urgencia)break;
         if(pq->tree[cur]->urgencia == pq->tree[filho]->urgencia && pq->tree[cur]->chegada > pq->tree[filho]->chegada)break;
         pq_swap(pq, cur, filho);
         cur = filho;
@@ -113,7 +113,7 @@ int pq_desenfileirar(PQ* pq)
     if(pq_vazia(pq))return -1;
     int saida = pq->tree[0]->id;
     pq->tree[0] = pq->tree[pq->fim];
-    pq->tree[pq->fim]->urgencia = -1;
+    pq->tree[pq->fim]->urgencia = 6;
     pq->fim--;
     pq_fix_down(pq);
     return saida;
