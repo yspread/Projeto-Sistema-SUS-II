@@ -7,6 +7,15 @@
 #include <stdbool.h>
 #include <string.h>
 
+/* 1-problema da busca
+    2- problema da busca
+    3-
+    4-
+    5-
+    6-pronto
+    7-pronto
+*/
+
 void imprime_menu();
 void clean_buffer();
 
@@ -111,7 +120,7 @@ int main()
                 break;
             }
 
-            case 3://adicionar procedimento
+            case 3://listar pacientes
             {
                 printf("Digite o ID do paciente a adicionar um procedimento no historico:");
                 int id;
@@ -141,7 +150,7 @@ int main()
                 break;
             }
 
-            case 4://remover procedimento
+            case 4://buscar paciente por ID
             {
                 printf("Digite o ID do paciente a remover um procedimento de seu historico (sera removido o procedimento mais recente):");
                 int id;
@@ -173,53 +182,41 @@ int main()
                 break;
             }
 
-            case 5: //chamar o proximo da fila para atendimento
+            case 5: //mostrar fila de espera
             {
-                int id = chamar_para_atendimento(fila);
+                int id = pq_desenfileirar(fila);
                 if (id == -1)
                 {
                     printf("A fila esta vazia.\n");
                 }
                 else
                 {
-                    PACIENTE* paciente = buscar_paciente(lista, id);
-                    char *nome = get_nome_paciente(paciente);
-                    printf("Paciente chamado para atendimento.\n");
-                    printf("Nome: %s\n", nome);
-                    printf("ID: %d\n", id);
+                    printf("Paciente de ID %d recebeu alta do hospital.\n", id);
                 }
                 break;
             }
-            case 6:
+            case 6: //dar alta a um paciente
             {
-                //printar a fila de espera
-                fila_listar(fila, lista);                
-                break;
-            }
-
-            case 7:
-            {
-                //printar o historico de um paciente pelo id
-                printf("Digite o id do paciente para ver seu histórico:");
-                int id;
-                scanf("%d", &id);
-                clean_buffer();
-                PACIENTE *paciente = buscar_paciente(lista, id);
-                if(paciente == NULL){
-                    printf("Paciente não encontrado\n");
+                int id = pq_desenfileirar(fila);
+                if (id == -1)
+                {
+                    printf("A fila esta vazia.\n");
                 }
-                else print_historico(get_historico(paciente));
+                else
+                {
+                    printf("Paciente de ID %d recebeu alta do hospital.\n", id);
+                }
                 break;
             }
 
-            case 8: //sai o sistema
+            case 7: //sai o sistema
             {
                 printf("Saindo do sistema.\n");
-                if (save(lista, fila) == false)
+                if (save(avl, fila) == false)
                 {
-                    printf("Não foi possível salvar a lista e a fila.\n");
-                    apagar_fila(&fila);
-                    apagar_lista(&lista);
+                    printf("Não foi possível salvar os dados no sistema\n");
+                    pq_apagar(&fila);
+                    avl_apagar(&avl);
                 }
                 return 0;
             }
