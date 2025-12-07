@@ -81,14 +81,14 @@ int main()
                 {
                     printf("Paciente já registrado.\n");
                 }
-                if (pq_cheia(pq) == false)    //VERIFICAR COMO BUSCAR O PACIENTE NA FILA, SÓ FALTA ISSO PRA ESSA FUNÇÃO
+                if (pq_cheia(pq) == false)
                 {
-                    if(buscar_paciente_fila(pq, id)){
+                    if(buscar_pq(id, pq)){
                         printf("Paciente já está na fila.\n");
                     }
                     else{
                         pq_enfileirar(pq, id, prioridade);
-                        printf("Paciente inserido na fila para a triagem.\n");
+                        printf("Paciente inserido na fila de atendimento.\n");
                     }
                 }
                 else
@@ -104,8 +104,8 @@ int main()
                 int id;
                 scanf("%d", &id);
                 clean_buffer();
-                if(buscar_paciente_fila(pq, id)){ //VER AQUI A FUNÇÃO DE BUSCA TBM
-                    printf("Paciente está na fila, nao é possivel registrar seu óbito.\n");
+                if(buscar_pq(id, pq)){
+                    printf("Paciente está na fila, nao é possivel apagá-lo do sistema.\n");
                 }
                 else {
                     if (!avl_remover(avl, id))

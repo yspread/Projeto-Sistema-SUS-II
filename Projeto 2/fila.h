@@ -16,4 +16,5 @@
     int get_chegada_inicio(PQ *pq); //retorna o tempo de chegada do primeiro da fila
     int get_prioridade_inicio(PQ *pq); //retorna a prioridade do primeiro paciente
     bool print_pq(PQ *pq);  //imprime o ID do paciente
+    bool buscar_pq(int id, PQ* pq); //verifica se um paciente ja está na fila
 #endif

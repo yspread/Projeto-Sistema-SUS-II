@@ -153,3 +153,15 @@ int get_chegada_inicio(PQ* pq)
 {
     return pq->tree[0]->chegada;
 }
+
+bool buscar_pq(int id, PQ *pq) //função retorna true se o paciente foi achado na fila, false caso contrário
+{
+    for (int i = 0; i < pq->fim; i++)
+    {
+        if (id == pq->tree[i]->id)
+        {
+            return true;
+        }
+    }
+    return false;
+}
