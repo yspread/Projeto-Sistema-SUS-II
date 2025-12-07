@@ -6,7 +6,7 @@
 #define TAM 250
 #define max(a, b) ((a > b) ? a : b)
 
-typedef struct no_{ //na fila, armazenaremos do paciente apenas o id, para economizar memória (além da urgência e tempo de chegada)
+typedef struct no_{
     int id, urgencia;
     long long int chegada;
 }NO;
@@ -25,7 +25,7 @@ PQ* criar_pq()
         aux->ultima_chegada = 0;
         for(int i = 0; i < TAM; i++){
             aux->tree[i] = malloc(sizeof(NO));
-            if(aux->tree[i] != NULL)aux->tree[i]->urgencia = 6;
+            if(aux->tree[i] != NULL)aux->tree[i]->urgencia = 6;//a urgencia 6 irá sinalizar que o nó está vazio
         }
     }
     return aux;
@@ -56,7 +56,7 @@ int maior_filho(PQ* pq, int a)
     int e = a*2 + 1, d = a*2 + 2;
     if(pq->tree[e]->urgencia > pq->tree[d]->urgencia)return e;
     else if(pq->tree[e]->urgencia < pq->tree[d]->urgencia)return d;
-    else{
+    else{//a ordem de chegada será critério de desempate
         if(pq->tree[e]->chegada > pq->tree[d]->chegada)return e;
         else return d;
     }
@@ -74,6 +74,7 @@ void pq_fix_up(PQ* pq)
     int cur = pq->fim;
     int pai = (cur - 1)/2;
     while(cur > 0){
+        //a ordem de chegada é critério de desempate
         if(pq->tree[cur]->urgencia > pq->tree[pai]->urgencia)break;
         if(pq->tree[cur]->urgencia == pq->tree[pai]->urgencia && pq->tree[cur]->chegada < pq->tree[pai]->chegada)break;
         pq_swap(pq, cur, pai);
@@ -87,6 +88,7 @@ void pq_fix_down(PQ* pq)
     int cur = 0;
     int filho = maior_filho(pq, cur);
     while(pq->tree[filho]->urgencia != -1){
+        //a ordem de chegada é critério de desempate
         if(pq->tree[cur]->urgencia < pq->tree[filho]->urgencia)break;
         if(pq->tree[cur]->urgencia == pq->tree[filho]->urgencia && pq->tree[cur]->chegada > pq->tree[filho]->chegada)break;
         pq_swap(pq, cur, filho);
@@ -110,7 +112,7 @@ bool pq_enfileirar(PQ* pq, int id, int urgencia)
 int pq_desenfileirar(PQ* pq)
 {
     if(pq_vazia(pq))return -1;
-    int saida = pq->tree[0]->id;
+    int saida = pq->tree[0]->id;//novo nó raiz
     pq->tree[0] = pq->tree[pq->fim];
     pq->tree[pq->fim]->urgencia = 6;
     pq->fim--;
@@ -140,4 +142,14 @@ bool print_pq(PQ* pq)
 int get_fim(PQ *pq)
 {
     return pq->fim;
+}
+
+int get_prioridade_inicio(PQ* pq)
+{
+    return pq->tree[0]->urgencia;
+}
+
+int get_chegada_inicio(PQ* pq)
+{
+    return pq->tree[0]->chegada;
 }
