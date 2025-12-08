@@ -4,9 +4,6 @@
 #include <stdlib.h>
 #include "historico.h"
 #include "procedimento.h"
-#include "avl.h"
-#include "fila.h"
-
 #define MAX_PROCEDIMENTOS 10 //quantidade maxima de procedimentos no historico
 
 typedef struct no_ NO_HIST;
@@ -17,6 +14,7 @@ struct no_
     PROCEDIMENTO* procedimento;
     NO_HIST* anterior;
 };
+
 
 typedef struct historico_
 {

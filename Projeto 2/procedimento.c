@@ -60,3 +60,4 @@ bool procedimento_cheio(PROCEDIMENTO* p)
 {
     return p->size >= MAX_CHARS;
 }
+

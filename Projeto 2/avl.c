@@ -275,14 +275,14 @@ bool save_avl(AVL* avl)
             return false;
         }
         preencher_vetor(avl->raiz, vetor, 0, tam_avl); //preenchemos o vetor com as informações da nossa AVL
-        PACIENTE vazio; //precisamos tratar do caso em que uma posição no último nível não tenha nó
-        vazio.ID = -1; //nesse caso, vamos definir o ID de um paciente "vazio" como -1, para indicar que não há paciente naquela posição
+        PACIENTE* vazio = criar_paciente(-1, ""); //caso o nó seja NULL definimos o paciente vazio
+        fwrite(&tam_avl, sizeof(int), 1, fp_avl); //salvamos o tamanho da avl para guiar o load
         for (int i=0; i<tam_avl; i++) {
             if(vetor[i] != NULL) { //se existir paciente naquela posição, salvamos os seus dados
-                fwrite(vetor[i], sizeof(PACIENTE), 1, fp_avl);
+                save_paciente(vetor[i], fp_avl);
             }
             else { //se nao existir, indicamos "vazio" para simbolizar que nao há paciente ali
-                fwrite(&vazio, sizeof(PACIENTE), 1, fp_avl);
+                save_paciente(vazio, fp_avl);
             }
         }
         free(vetor); //liberamos o espaco da memoria auxiliar (o vetor)
@@ -301,20 +301,19 @@ bool load_avl(AVL** avl)
     if (fp_avl== NULL) {
         return false; //se o arquivo nao existir, retornamos falso
     }
-    fseek(fp_avl, 0, SEEK_END); //colocamos o cursor no fim do arquivo
-    long tam_bytes = ftell(fp_avl);  //usamos ftell para obter o tamanho total em bytes do arquivo (informação será usada no malloc)
-    rewind(fp_avl); //voltamos o cursor para o inicio do arquivo para enfim ler os pacientes
-    if(tam_bytes>0) {
-        int qtd_registros = tam_bytes / sizeof(PACIENTE); //o numero de registros será o tamanho em bytes do arquivo dividido pelo numero de bytes ocupado por paciente
-        PACIENTE *temp = (PACIENTE *) malloc(qtd_registros * sizeof(PACIENTE));
-        if (temp == NULL) { //em caso de falha de alocação, fecha o arquio e retorna falso
-            fclose(fp_avl);
-            return false;
-        }
-        fread(temp, sizeof(PACIENTE), qtd_registros, fp_avl); //lemos os dados do arquivo
-        (*avl)->raiz = reconstruir_arvore(temp, 0, qtd_registros); //agora vamos reconstruir a AVL
-        free(temp); 
+    int tam_avl;
+    fread(&tam_avl, sizeof(int), 1, fp_avl);
+
+    PACIENTE** temp = (PACIENTE *) malloc(tam_avl * sizeof(PACIENTE));
+    if (temp == NULL) { //em caso de falha de alocação, fecha o arquio e retorna falso
+        fclose(fp_avl);
+        return false;
     }
+    for(int i = 0; i < tam_avl; i++){        
+        temp[i] = load_paciente(fp_avl);
+    }
+    (*avl)->raiz = reconstruir_arvore(temp, 0, tam_avl); //agora vamos reconstruir a AVL
+    free(temp);
     fclose(fp_avl); 
     return true;
 }

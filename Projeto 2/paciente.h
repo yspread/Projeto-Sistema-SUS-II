@@ -13,7 +13,11 @@
 
     //funçoes principais relacionadas ao paciente
     bool apagar_paciente(PACIENTE **paciente);
-    PACIENTE* criar_paciente(int id, char* nome, int prioridade);
+    PACIENTE* criar_paciente(int id, char* nome);
     void imprimir_paciente(PACIENTE* paciente);
+
+    //funções para salvar e carregar o paciente em um arquivo
+    void save_paciente(PACIENTE* paciente, FILE* fptr);
+    PACIENTE* load_paciente(FILE* fptr);
 
 #endif
