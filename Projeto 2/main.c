@@ -16,11 +16,17 @@ int main()
     PQ *pq = criar_pq();
     if (load_avl(&avl) == false)
     {
-        printf("Não foi possível carregar os registros no sistema.");
+        printf("Não foi possível carregar os registros no sistema.\n");
+    }
+    else{
+        printf("Dados do sistema carregados com sucesso.\n");
     }
     if (load_pq(&pq) == false)
     {
-        printf("Não foi possível carregar os dados da fila.");
+        printf("Não foi possível carregar os dados da fila.\n");
+    }
+    else{
+        printf("Dados da fila carregados com sucesso.\n");
     }
     int comando;
     imprime_menu();
@@ -131,7 +137,7 @@ int main()
 
             case 4://buscar paciente por ID
             {
-                printf("Digite o ID do paciente");
+                printf("Digite o ID do paciente:");
                 int id;
                 scanf("%d", &id);
                 clean_buffer();
@@ -239,7 +245,7 @@ int main()
                 scanf("%d", &id);
                 clean_buffer();
                 PACIENTE *paciente = avl_busca(avl, id);
-                if(paciente == NULL){
+                    if(paciente == NULL){
                     printf("Paciente não encontrado\n");
                 }
                 else print_historico(get_historico(paciente));
@@ -252,13 +258,19 @@ int main()
                 if (save_pq(pq) == false)
                 {
                     printf("Não foi possível salvar os dados da fila de espera.\n");
-                    pq_apagar(&pq);
+                }
+                else{
+                    printf("Dados da fila salvos com sucesso.\n");
                 }
                 if (save_avl(avl) == false)
                 {
                     printf("Não foi possível salvar os registros no sistema.\n");
-                    avl_apagar(&avl);
                 }
+                else{
+                    printf("Registros do sistema salvos com sucesso.\n");
+                }
+                avl_apagar(&avl);
+                pq_apagar(&pq);
                 return 0;
             }
         

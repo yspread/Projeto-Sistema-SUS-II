@@ -1,11 +1,13 @@
 #ifndef AVL_H
     #define AVL_H
     #include <stdbool.h>
-
+    #include <stdio.h>
+    #include "paciente.h"
     //a avl é a estrutura de dados que armazenará todas as informações do sistema
     //definição das structs necessárias para a implementação da avl ENCADEADA
     typedef struct no_ NO;
     typedef struct avl_ AVL;
+
 
     AVL* avl_criar_arvore();//função para criar a avl
     void avl_apagar(AVL** arvore);//função para apagar a avl

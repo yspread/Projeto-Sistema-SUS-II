@@ -139,7 +139,7 @@ bool print_pq(PQ* pq)
     while(!pq_vazia(copy)){
         printf("%d\n", pq_desenfileirar(copy));
     }
-    pq_apagar(copy);
+    pq_apagar(&copy);
     return true;
 }
 

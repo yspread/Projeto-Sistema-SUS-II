@@ -1,5 +1,9 @@
 #ifndef PACIENTE_H
     #define PACIENTE_H
+    #include <stdio.h>
+    typedef struct paciente_ PACIENTE;
+
+
     #include <stdbool.h>
     #include "historico.h"
     
