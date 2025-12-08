@@ -1,4 +1,5 @@
 #include "paciente.h"
+#include "procedimento.h"
 #include "avl.h"
 #include "fila.h"
 #include "IO.h"
@@ -168,7 +169,84 @@ int main()
                 break;
             }
 
-            case 7: //sai o sistema
+            case 7://adicionar procedimento
+            {
+                printf("Digite o ID do paciente a adicionar um procedimento no historico:");
+                int id;
+                scanf("%d", &id);
+                clean_buffer();
+                PACIENTE *paciente = avl_busca(avl->raiz, id);
+                if (paciente == NULL)
+                {
+                    printf("Nao existe um paciente com esse ID em nosso sistema\n");
+                }
+                else
+                {
+                    char texto[100];
+                    printf("Digite o procedimento a ser adicionado:");
+                    fgets(texto, 100, stdin);
+                    texto[strcspn(texto, "\n")] = '\0';
+                    PROCEDIMENTO *procedimento = criar_procedimento(texto);
+                    if (inserir_procedimento(get_historico(paciente), procedimento))
+                    {
+                        printf("Procedimento inserido no historico do paciente com sucesso\n");
+                    }
+                    else
+                    {
+                        printf("Nao foi possivel inserir o procedimento.\n");
+                    }
+                }
+                break;
+            }
+
+            case 8://remover procedimento
+            {
+                printf("Digite o ID do paciente a remover um procedimento de seu historico (sera removido o procedimento mais recente):");
+                int id;
+                scanf("%d", &id);
+                clean_buffer();
+                PACIENTE *paciente = avl_busca(avl->raiz, id);
+                if (paciente == NULL)
+                {
+                    printf("Nao existe um paciente com esse ID em nosso sistema\n");
+                }
+                else
+                {
+                    if (historico_vazio(get_historico(paciente)))
+                    {
+                        printf("O historico do paciente esta vazio.\n");
+                    }
+                    else
+                    {
+                        if (retirar_procedimento(get_historico(paciente)))
+                        {
+                            printf("Procedimento retirado com sucesso.\n");
+                        }
+                        else
+                        {
+                            printf("Não foi possivel retirar o procedimento.\n");
+                        }
+                    }    
+                }
+                break;
+            }
+
+            case 9:
+            {
+                //printar o historico de um paciente pelo id
+                printf("Digite o id do paciente para ver seu histórico:");
+                int id;
+                scanf("%d", &id);
+                clean_buffer();
+                PACIENTE *paciente = avl_busca(avl->raiz, id);
+                if(paciente == NULL){
+                    printf("Paciente não encontrado\n");
+                }
+                else print_historico(get_historico(paciente));
+                break;
+            }
+
+            case 10: //sai o sistema
             {
                 printf("Saindo do sistema.\n");
                 if (save_pq(pq) == false)
@@ -206,7 +284,10 @@ void imprime_menu()
     printf("4. Buscar paciente por ID\n");
     printf("5. Mostrar fila de espera\n");
     printf("6. Dar alta a um paciente\n");
-    printf("7. Sair\n\n");
+    printf("7. Adicionar procedimento ao histórico médico do paciente\n");
+    printf("8. Desfazer procedimento do histórico médico do paciente\n");
+    printf("9. Mostrar histórico do paciente\n");
+    printf("10. Sair\n\n");
     return;
 }
 
