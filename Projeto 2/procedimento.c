@@ -17,15 +17,19 @@ typedef struct procedimento_
 
 PROCEDIMENTO* criar_procedimento(char* str)
 {
-    PROCEDIMENTO* aux;
-
-    aux = malloc(sizeof(PROCEDIMENTO));
-
-    aux->nome = malloc((strlen(str) + 1) * sizeof(char)); //alocando espaço para copiar o nome do procedimento
-    strcpy(aux->nome, str); //copiando o nome fornecido para o nome do procedimento
-
-    aux->size = strlen(str); //definindo a quantidade de caracteres em cada procedimento
-
+    if(str == NULL) return NULL;
+    
+    PROCEDIMENTO* aux = malloc(sizeof(PROCEDIMENTO));
+    if(aux == NULL) return NULL;
+    
+    aux->nome = malloc((strlen(str) + 1) * sizeof(char));
+    if(aux->nome == NULL) {
+        free(aux);
+        return NULL;
+    }
+    
+    strcpy(aux->nome, str);
+    aux->size = strlen(str);
     return aux;
 }
 
@@ -53,7 +57,10 @@ char* get_nome_procedimento(PROCEDIMENTO* p)//funcao para acessar o nome do proc
 
 int get_size_procedimento(PROCEDIMENTO *p) //acessar o tamanho do procedimeto
 {
-    return(p->size);
+    if(p != NULL){
+        return(p->size);
+    }
+    return -1;
 }
 
 bool procedimento_cheio(PROCEDIMENTO* p)

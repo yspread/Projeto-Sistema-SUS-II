@@ -64,6 +64,7 @@ int main()
                     if (paciente == NULL)
                     {
                         printf("Nao foi possivel registrar o paciente.\n");
+                        break;
                     }
                     else
                     {

@@ -108,7 +108,10 @@ bool historico_vazio(HISTORICO* historico)
 
 PROCEDIMENTO *get_topo(HISTORICO *historico)
 {
-    return (historico->topo->procedimento);
+    if(historico != NULL && historico->topo != NULL) {
+        return (historico->topo->procedimento);
+    }
+    return NULL;
 }
 
 int get_tamanho_historico(HISTORICO* historico)

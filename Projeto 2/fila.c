@@ -80,7 +80,7 @@ void pq_fix_up(PQ* pq)
     while(cur > 0){
         //a ordem de chegada é critério de desempate
         if(pq->tree[cur]->urgencia > pq->tree[pai]->urgencia)break;
-        if(pq->tree[cur]->urgencia == pq->tree[pai]->urgencia && pq->tree[cur]->chegada < pq->tree[pai]->chegada)break;
+        if(pq->tree[cur]->urgencia == pq->tree[pai]->urgencia && pq->tree[cur]->chegada > pq->tree[pai]->chegada)break;
         pq_swap(pq, cur, pai);
         cur = pai;
         pai = (cur - 1)/2;
