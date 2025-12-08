@@ -7,15 +7,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-/* 1-problema da busca
-    2- problema da busca
-    3-pronto
-    4-pronto
-    5-pronto
-    6-pronto
-    7-pronto
-*/
-
 void imprime_menu();
 void clean_buffer();
 
@@ -23,11 +14,14 @@ int main()
 {
     AVL *avl = avl_criar_arvore();
     PQ *pq = criar_pq();
-    if (load(&avl, &pq) == false)
+    if (load_avl(&avl) == false)
     {
-        printf("Não foi possível abrir os arquivos salvos.");
+        printf("Não foi possível carregar os registros no sistema.");
     }
-    
+    if (load_pq(&pq) == false)
+    {
+        printf("Não foi possível carregar os dados da fila.");
+    }
     int comando;
     imprime_menu();
     while (true) //isso sempre vai acontecer enquanto o programa roda, a nao ser no caso 7, que ai finaliza a função
@@ -177,10 +171,14 @@ int main()
             case 7: //sai o sistema
             {
                 printf("Saindo do sistema.\n");
-                if (save(avl, pq) == false)
+                if (save_pq(pq) == false)
                 {
-                    printf("Não foi possível salvar os dados no sistema\n");
+                    printf("Não foi possível salvar os dados da fila de espera.\n");
                     pq_apagar(&pq);
+                }
+                if (save_avl(avl) == false)
+                {
+                    printf("Não foi possível salvar os registros no sistema.\n");
                     avl_apagar(&avl);
                 }
                 return 0;

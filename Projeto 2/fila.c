@@ -144,16 +144,6 @@ int get_fim(PQ *pq)
     return pq->fim;
 }
 
-int get_prioridade_inicio(PQ* pq)
-{
-    return pq->tree[0]->urgencia;
-}
-
-int get_chegada_inicio(PQ* pq)
-{
-    return pq->tree[0]->chegada;
-}
-
 bool buscar_pq(int id, PQ *pq) //função retorna true se o paciente foi achado na fila, false caso contrário
 {
     for (int i = 0; i < pq->fim; i++)
@@ -164,4 +154,59 @@ bool buscar_pq(int id, PQ *pq) //função retorna true se o paciente foi achado 
         }
     }
     return false;
+}
+
+bool save_pq(PQ* pq)
+{
+    if (!pq)
+    {
+        return false; //salvamento mal sucedido
+    }
+    // salvamento da fila de prioridade
+    FILE *fp_pq = fopen("pq_itens.bin", "wb");
+    if (!fp_pq)
+    {
+        return false; //salvamento mal sucedido
+    }
+    int tamanhofila = pq->fim + 1;
+    int id; //vai armazenar o id do paciente a ser salvo atual
+    int prioridade;
+    fwrite(&tamanhofila, sizeof(int), 1, fp_pq); //salvamos o tamanho da fila para ler adequadamente no load
+    while(!pq_vazia(pq))
+    {
+        //no arquivo, os ids estarão na ordem de prioridade
+        prioridade = pq->tree[0]->urgencia;
+        fwrite(&prioridade, sizeof(int), 1, fp_pq); //salvo a ordem de prioridade do paciente
+        id = pq_desenfileirar(pq);
+        fwrite(&id, sizeof(int), 1, fp_pq);
+    }
+    fclose(fp_pq);
+    fp_pq = NULL;
+    return true; //salvamento sucedido
+}
+
+bool load_pq(PQ** pq)
+{
+    if (!*pq)
+    {
+        return false; //carregamento mal sucedido
+    }
+    //carregamento da fila de prioridade
+    FILE *fp_pq = fopen("pq_itens.bin", "rb");
+    if (!fp_pq)
+    {
+        return false; //carregamento mal sucedido
+    }
+    int tamanhofila;
+    fread(&tamanhofila, sizeof(int), 1, fp_pq); //leio o tamanho da fila salva
+    int id, prioridade;
+    for (int i = 0; i < tamanhofila; i++)
+    {
+        fread(&prioridade, sizeof(int), 1, fp_pq); //leio a ordem de prioridade do paciente
+        fread(&id, sizeof(int), 1, fp_pq);
+        pq_enfileirar(*pq, id, prioridade);
+    }
+    fclose(fp_pq);
+    fp_pq = NULL;
+    return true; //carregamento sucedido
 }

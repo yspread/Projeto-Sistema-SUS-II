@@ -13,8 +13,10 @@
     bool pq_enfileirar(PQ *pq, int id, int urgencia);  //funcao que coloca um paciente na fila
     int pq_desenfileirar(PQ *pq);  //chama o proximo da fila para atendimento
     int get_fim(PQ *pq); //retorna o indice do ultimo elemento da fila
-    int get_chegada_inicio(PQ *pq); //retorna o tempo de chegada do primeiro da fila
-    int get_prioridade_inicio(PQ *pq); //retorna a prioridade do primeiro paciente
     bool print_pq(PQ *pq);  //imprime o ID do paciente
     bool buscar_pq(int id, PQ* pq); //verifica se um paciente ja está na fila
+    
+    //funçoes para salvar e carregar a fila
+    bool save_pq(PQ* pq);
+    bool load_pq(PQ** pq);
 #endif

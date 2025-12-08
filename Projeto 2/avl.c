@@ -219,3 +219,102 @@ bool avl_vazia(AVL* arvore) //verifica se a avl está vazia
     }
     else return false;
 }
+
+NO* reconstruir_arvore(PACIENTE *vetor, int indice, int qtd_registros) {  //função para reconstruir a AVL a partir de um vetor (auxiliar a load)
+    if (indice >= qtd_registros || vetor[indice].ID == -1) {//se o indice ultrapassar o numero de pacientes ou se o ID indicar que não há paciente
+        return NULL;
+    }
+    PACIENTE *novo_paciente = (PACIENTE *) malloc (sizeof(PACIENTE));  //vamos alocar um novo paciente para todo nó existente e válido
+    if (novo_paciente == NULL) {
+        return NULL;
+    }
+    *novo_paciente = vetor[indice];
+    NO *novo_no = avl_criar_NO(novo_paciente); //vamos colocar o paciente em um nó
+    if (novo_no == NULL) {
+        free(novo_paciente);
+        return NULL;
+    }
+    novo_no->esq = reconstruir_arvore(vetor, 2 * indice +1, qtd_registros); //o filho à esquerda do nó está na posição 2i+1 do vetor
+    novo_no->dir = reconstruir_arvore(vetor, 2 * indice +2, qtd_registros);//o filho à direita do nó está na posição 2i+2 do vetor
+    novo_no->alt = 1+ ((get_altura(novo_no->esq)) > get_altura(novo_no->dir) ? get_altura(novo_no->esq) : get_altura(novo_no->dir)); //reajuste da altura
+    return novo_no;
+}
+
+void preencher_vetor(NO *no, PACIENTE **vetor, int indice, int tamanho_max)  { //funcao auxiliar para colocar os nós da árvore em um vetor; 
+    //o tamanho maximo é o tamanho da própria avl considerando-a como uma arvore binaria completa cheia
+    if (no == NULL || indice >= tamanho_max) {
+        return;
+    }
+    vetor[indice] = no->paciente; //colocamos as informações do paciente em sua respectiva posicao no vetor
+    preencher_vetor(no->esq, vetor, (indice*2) +1, tamanho_max);  //o filho esquerdo estará do nó na posição i estará na posição 2i +1
+    preencher_vetor(no->dir, vetor, (indice*2) +2, tamanho_max);  //o filho direito estará na posicao 2i +2
+}
+
+
+bool save_avl(AVL* avl)
+{
+    if (!avl)
+    {
+        return false; //salvamento mal sucedido
+    }
+    //salvamento da avl:
+    FILE *fp_avl = fopen("avl_itens.bin", "wb");
+    if (!fp_avl)
+    {
+        return false; //salvamento mal sucedido
+    }
+    if (avl_vazia(avl)) { //se a avl estiver vazia, nao há o que salvar
+        fclose(fp_avl);
+    }
+    else { //se nao estiver vazia, vamos guardar as informações dos pacientes em um vetor, para facilitar percorrer os nós e suas informações
+        int n = avl->raiz->alt; //n será a altura da avl
+        int tam_avl = pow(2, n+1) -1; //o tamanho maximo de uma arvore completa com altura n é 2^(n+1)-1 
+        PACIENTE **vetor = (PACIENTE **) calloc (tam_avl, sizeof(PACIENTE*)); //vamos alocar um vetor de ponteiros para PACIENTE
+        if (vetor==NULL) { //falha na alocação de memória do vetor
+            fclose(fp_avl);
+            return false;
+        }
+        preencher_vetor(avl->raiz, vetor, 0, tam_avl); //preenchemos o vetor com as informações da nossa AVL
+        PACIENTE vazio; //precisamos tratar do caso em que uma posição no último nível não tenha nó
+        vazio.ID = -1; //nesse caso, vamos definir o ID de um paciente "vazio" como -1, para indicar que não há paciente naquela posição
+        for (int i=0; i<tam_avl; i++) {
+            if(vetor[i] != NULL) { //se existir paciente naquela posição, salvamos os seus dados
+                fwrite(vetor[i], sizeof(PACIENTE), 1, fp_avl);
+            }
+            else { //se nao existir, indicamos "vazio" para simbolizar que nao há paciente ali
+                fwrite(&vazio, sizeof(PACIENTE), 1, fp_avl);
+            }
+        }
+        free(vetor); //liberamos o espaco da memoria auxiliar (o vetor)
+        fclose(fp_avl);
+        fp_avl = NULL;
+        return true;
+    }
+}
+
+bool load_avl(AVL** avl)
+{ 
+    if (!avl || !(*avl)) {  //se nao houver avl, nao é possivel carregá-la
+        return false;
+    }
+    FILE *fp_avl = fopen("avl_itens.bin", "rb");
+    if (fp_avl== NULL) {
+        return false; //se o arquivo nao existir, retornamos falso
+    }
+    fseek(fp_avl, 0, SEEK_END); //colocamos o cursor no fim do arquivo
+    long tam_bytes = ftell(fp_avl);  //usamos ftell para obter o tamanho total em bytes do arquivo (informação será usada no malloc)
+    rewind(fp_avl); //voltamos o cursor para o inicio do arquivo para enfim ler os pacientes
+    if(tam_bytes>0) {
+        int qtd_registros = tam_bytes / sizeof(PACIENTE); //o numero de registros será o tamanho em bytes do arquivo dividido pelo numero de bytes ocupado por paciente
+        PACIENTE *temp = (PACIENTE *) malloc(qtd_registros * sizeof(PACIENTE));
+        if (temp == NULL) { //em caso de falha de alocação, fecha o arquio e retorna falso
+            fclose(fp_avl);
+            return false;
+        }
+        fread(temp, sizeof(PACIENTE), qtd_registros, fp_avl); //lemos os dados do arquivo
+        (*avl)->raiz = reconstruir_arvore(temp, 0, qtd_registros); //agora vamos reconstruir a AVL
+        free(temp); 
+    }
+    fclose(fp_avl); 
+    return true;
+}

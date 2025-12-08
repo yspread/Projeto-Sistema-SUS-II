@@ -15,4 +15,8 @@
     void imprimir_avl(AVL* arvore); //imprime seguindo o percurso EM ORDEM
     bool avl_vazia(AVL* arvore); //verifica se a avl está vazia
 
+    //funções para salvar e carregar a avl
+    bool save_avl(AVL* avl);
+    bool load_avl(AVL** avl);
+
 #endif
