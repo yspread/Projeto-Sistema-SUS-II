@@ -2,7 +2,6 @@
 #include "procedimento.h"
 #include "avl.h"
 #include "fila.h"
-#include "IO.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -47,7 +46,7 @@ int main()
                 if (avl_busca(avl, id) == NULL)
                 {
                     printf("Digite o nome do paciente:");
-                    fgets(nome, 100, stdin);
+                    fgets(nome, 99, stdin);
                     nome[strcspn(nome, "\n")] = '\0';
                     printf("Digite o nível de prioridade do paciente:\n");
                     printf("1. Emergência\n");
@@ -61,7 +60,7 @@ int main()
                         printf("Prioridade inválida.\n");
                         break;
                     }
-                    paciente = criar_paciente(id, nome, prioridade);
+                    paciente = criar_paciente(id, nome);
                     if (paciente == NULL)
                     {
                         printf("Nao foi possivel registrar o paciente.\n");
@@ -175,7 +174,7 @@ int main()
                 int id;
                 scanf("%d", &id);
                 clean_buffer();
-                PACIENTE *paciente = avl_busca(avl->raiz, id);
+                PACIENTE *paciente = avl_busca(avl, id);
                 if (paciente == NULL)
                 {
                     printf("Nao existe um paciente com esse ID em nosso sistema\n");
@@ -205,7 +204,7 @@ int main()
                 int id;
                 scanf("%d", &id);
                 clean_buffer();
-                PACIENTE *paciente = avl_busca(avl->raiz, id);
+                PACIENTE *paciente = avl_busca(avl, id);
                 if (paciente == NULL)
                 {
                     printf("Nao existe um paciente com esse ID em nosso sistema\n");
@@ -238,7 +237,7 @@ int main()
                 int id;
                 scanf("%d", &id);
                 clean_buffer();
-                PACIENTE *paciente = avl_busca(avl->raiz, id);
+                PACIENTE *paciente = avl_busca(avl, id);
                 if(paciente == NULL){
                     printf("Paciente não encontrado\n");
                 }

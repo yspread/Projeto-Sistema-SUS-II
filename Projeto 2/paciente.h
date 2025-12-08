@@ -1,6 +1,7 @@
 #ifndef PACIENTE_H
     #define PACIENTE_H
     #include <stdbool.h>
+    #include "historico.h"
     
     //nao colocamos a prioridade no tad paciente, mas sim no nó da priority queue, por não ser
     //uma característica intrinseca do paciente
@@ -10,6 +11,7 @@
     //funçoes auxiliares para acessar valores
     int get_ID(PACIENTE *paciente);
     char *get_nome_paciente(PACIENTE *paciente);
+    HISTORICO* get_historico(PACIENTE* paciente);
 
     //funçoes principais relacionadas ao paciente
     bool apagar_paciente(PACIENTE **paciente);

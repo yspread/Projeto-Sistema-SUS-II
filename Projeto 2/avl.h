@@ -11,7 +11,7 @@
     void avl_apagar(AVL** arvore);//função para apagar a avl
     void avl_inserir(AVL* arvore, PACIENTE* paciente);//função para inserção de paciente
     bool avl_remover(AVL* arvore, int chave);//funções para remoção de paciente por chave
-    PACIENTE* avl_busca(NO* cur, int chave); //busca por chave
+    PACIENTE* avl_busca(AVL* avl, int id); //busca por chave
     void imprimir_avl(AVL* arvore); //imprime seguindo o percurso EM ORDEM
     bool avl_vazia(AVL* arvore); //verifica se a avl está vazia
 

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 #include "avl.h"
 #include "paciente.h"
 
@@ -56,14 +57,20 @@ NO* avl_criar_NO(PACIENTE* paciente) //aloca memoria para um nó que irá conter
     return aux;
 }
 
+int altura_no(NO* no)
+{
+    if(no == NULL)return 0;
+    else return no->alt;
+}
+
 //as 5 funções a seguir correspondem as funções responsáveis por manter a avl balanceada(rotações)
 NO* rodar_direita(NO* cur)
 {
     NO* aux = cur->esq;
     cur->esq = aux->dir;
     aux->dir = cur;
-    cur->alt = max(cur->dir->alt, cur->esq->alt) + 1;
-    aux->alt = max(aux->dir->alt, aux->esq->alt) + 1;
+    cur->alt = max(altura_no(cur->dir), altura_no(cur->esq)) + 1;
+    aux->alt = max(altura_no(aux->dir), altura_no(aux->esq)) + 1;
     return aux;
 }
 
@@ -72,8 +79,8 @@ NO* rodar_esquerda(NO* cur)
     NO* aux = cur->dir;
     cur->dir = aux->esq;
     aux->esq = cur;
-    cur->alt = max(cur->dir->alt, cur->esq->alt) + 1;
-    aux->alt = max(aux->dir->alt, aux->esq->alt) + 1;
+    cur->alt = max(altura_no(cur->dir), altura_no(cur->esq)) + 1;
+    aux->alt = max(altura_no(aux->dir), altura_no(aux->esq)) + 1;
     return aux;
 }
 
@@ -91,9 +98,10 @@ NO* rodar_direita_esquerda(NO* cur)
 
 NO* balancear_NO(NO* cur)
 {
-    int fb = cur->esq->alt - cur->dir->alt;
+    if(cur == NULL)return NULL;
+    int fb = altura_no(cur->esq) - altura_no(cur->dir);
     if(fb == -2){
-        if(cur->dir->esq->alt - cur->dir->dir->alt <= 0){
+        if(altura_no(cur->dir->esq) - altura_no(cur->dir->dir) <= 0){
             cur = rodar_esquerda(cur);
         }
         else{
@@ -101,7 +109,7 @@ NO* balancear_NO(NO* cur)
         }
     }
     if(fb == 2){
-        if(cur->esq->dir->alt - cur->esq->esq->alt <= 0){
+        if(altura_no(cur->esq->dir) - altura_no(cur->esq->esq) <= 0){
             cur = rodar_direita(cur);
         }
         else{
@@ -124,7 +132,7 @@ NO* avl_inserir_NO(NO* cur, PACIENTE* paciente) //função auxiliar para inserir
     else if(get_ID(paciente) > get_ID(cur->paciente)){
         cur->dir = avl_inserir_NO(cur->dir, paciente);
     }
-    cur->alt = max(cur->esq->alt, cur->dir->alt) + 1;
+    cur->alt = max(altura_no(cur->esq), altura_no(cur->dir)) + 1;
     return cur = balancear_NO(cur);
 }
 
@@ -166,7 +174,7 @@ NO* avl_remover_NO(NO* cur, int chave) //função auxiliar para remover um pacie
             else{
                 cur = cur->esq;
             }
-            apagar_paciente(aux->paciente);
+            apagar_paciente(&(aux->paciente));
             free(aux);
             aux = NULL;
         }
@@ -175,26 +183,41 @@ NO* avl_remover_NO(NO* cur, int chave) //função auxiliar para remover um pacie
         }
     }
     else if(chave > get_ID(cur->paciente)){
-        avl_remover_NO(cur->dir, chave);
+        cur->dir = avl_remover_NO(cur->dir, chave);
     }
     else{
-        avl_remover_NO(cur->esq, chave);
+        cur->esq = avl_remover_NO(cur->esq, chave);
     }
-    cur = balancear_NO(cur);
+    if(cur != NULL){
+        cur->alt = max(altura_no(cur->esq), altura_no(cur->dir)) + 1;
+        cur = balancear_NO(cur);
+    }
     return cur;
 }
 
 bool avl_remover(AVL* arvore, int chave) //função principal para remover um paciente da avl
 {
-    return ((arvore->raiz = avl_remover_NO(arvore->raiz, chave)) != NULL);
+    if(arvore == NULL) return false;
+    
+    // Verifica se o elemento existe antes de remover
+    if(avl_busca(arvore, chave) == NULL) return false;
+    
+    // Remove o elemento
+    arvore->raiz = avl_remover_NO(arvore->raiz, chave);
+    return true;
 }
 
-PACIENTE* avl_busca(NO* cur, int chave) //função para buscar um paciente por um ID
+PACIENTE* avl_busca_no(NO* cur, int chave) //função para buscar um paciente por um ID
 {
     if(cur == NULL)return NULL;
-    if(chave > get_ID(cur->paciente))return avl_busca(cur->dir, chave);
-    else if(chave < get_ID(cur->paciente))return avl_busca(cur->esq, chave);
+    if(chave > get_ID(cur->paciente))return avl_busca_no(cur->dir, chave);
+    else if(chave < get_ID(cur->paciente))return avl_busca_no(cur->esq, chave);
     else return cur->paciente;
+}
+
+PACIENTE* avl_busca(AVL* avl, int id)
+{
+    return avl_busca_no(avl->raiz, id);
 }
 
 void imprimir_emordem(NO* cur) //percorre a avl em ordem para gerar uma sequencia em ordem crescente de IDs
@@ -220,23 +243,17 @@ bool avl_vazia(AVL* arvore) //verifica se a avl está vazia
     else return false;
 }
 
-NO* reconstruir_arvore(PACIENTE *vetor, int indice, int qtd_registros) {  //função para reconstruir a AVL a partir de um vetor (auxiliar a load)
-    if (indice >= qtd_registros || vetor[indice].ID == -1) {//se o indice ultrapassar o numero de pacientes ou se o ID indicar que não há paciente
+NO* reconstruir_arvore(PACIENTE** vetor, int indice, int qtd_registros) {  //função para reconstruir a AVL a partir de um vetor (auxiliar a load)
+    if (indice >= qtd_registros || vetor[indice] == NULL || get_ID(vetor[indice]) == -1) {//se o indice ultrapassar o numero de pacientes ou se o ID indicar que não há paciente
         return NULL;
     }
-    PACIENTE *novo_paciente = (PACIENTE *) malloc (sizeof(PACIENTE));  //vamos alocar um novo paciente para todo nó existente e válido
-    if (novo_paciente == NULL) {
-        return NULL;
-    }
-    *novo_paciente = vetor[indice];
-    NO *novo_no = avl_criar_NO(novo_paciente); //vamos colocar o paciente em um nó
+    NO *novo_no = avl_criar_NO(vetor[indice]); //vamos colocar o paciente em um nó
     if (novo_no == NULL) {
-        free(novo_paciente);
         return NULL;
     }
     novo_no->esq = reconstruir_arvore(vetor, 2 * indice +1, qtd_registros); //o filho à esquerda do nó está na posição 2i+1 do vetor
     novo_no->dir = reconstruir_arvore(vetor, 2 * indice +2, qtd_registros);//o filho à direita do nó está na posição 2i+2 do vetor
-    novo_no->alt = 1+ ((get_altura(novo_no->esq)) > get_altura(novo_no->dir) ? get_altura(novo_no->esq) : get_altura(novo_no->dir)); //reajuste da altura
+    novo_no->alt = 1+ ((altura_no(novo_no->esq)) > altura_no(novo_no->dir) ? altura_no(novo_no->esq) : altura_no(novo_no->dir)); //reajuste da altura
     return novo_no;
 }
 
@@ -251,7 +268,7 @@ void preencher_vetor(NO *no, PACIENTE **vetor, int indice, int tamanho_max)  { /
 }
 
 
-bool save_avl(AVL* avl)
+bool save_avl(AVL* avl) 
 {
     if (!avl)
     {
@@ -263,8 +280,11 @@ bool save_avl(AVL* avl)
     {
         return false; //salvamento mal sucedido
     }
-    if (avl_vazia(avl)) { //se a avl estiver vazia, nao há o que salvar
+    if (avl_vazia(avl)) {
+        int tam_avl = 0;
+        fwrite(&tam_avl, sizeof(int), 1, fp_avl);
         fclose(fp_avl);
+        return true;
     }
     else { //se nao estiver vazia, vamos guardar as informações dos pacientes em um vetor, para facilitar percorrer os nós e suas informações
         int n = avl->raiz->alt; //n será a altura da avl
@@ -285,6 +305,7 @@ bool save_avl(AVL* avl)
                 save_paciente(vazio, fp_avl);
             }
         }
+        apagar_paciente(&vazio);
         free(vetor); //liberamos o espaco da memoria auxiliar (o vetor)
         fclose(fp_avl);
         fp_avl = NULL;
@@ -304,7 +325,7 @@ bool load_avl(AVL** avl)
     int tam_avl;
     fread(&tam_avl, sizeof(int), 1, fp_avl);
 
-    PACIENTE** temp = (PACIENTE *) malloc(tam_avl * sizeof(PACIENTE));
+    PACIENTE** temp = (PACIENTE **) malloc(tam_avl * sizeof(PACIENTE*));
     if (temp == NULL) { //em caso de falha de alocação, fecha o arquio e retorna falso
         fclose(fp_avl);
         return false;

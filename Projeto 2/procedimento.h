@@ -1,5 +1,6 @@
 #ifndef PROCEDIMENTO_H
     #define PROCEDIMENTO_H
+    #include <stdbool.h>
 
     //procedimento funciona como o item a ser usado apenas no historico
     typedef struct procedimento_ PROCEDIMENTO;

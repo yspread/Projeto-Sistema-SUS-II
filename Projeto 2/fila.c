@@ -25,7 +25,6 @@ PQ* criar_pq()
         aux->ultima_chegada = 0;
         for(int i = 0; i < TAM; i++){
             aux->tree[i] = malloc(sizeof(NO));
-            if(aux->tree[i] != NULL)aux->tree[i]->urgencia = 6;//a urgencia 6 irá sinalizar que o nó está vazio
         }
     }
     return aux;
@@ -51,13 +50,18 @@ bool pq_vazia(PQ* pq)
     return pq->fim == -1;
 }
 
-int maior_filho(PQ* pq, int a)
+int menor_filho(PQ* pq, int a)
 {
     int e = a*2 + 1, d = a*2 + 2;
-    if(pq->tree[e]->urgencia > pq->tree[d]->urgencia)return e;
-    else if(pq->tree[e]->urgencia < pq->tree[d]->urgencia)return d;
-    else{//a ordem de chegada será critério de desempate
-        if(pq->tree[e]->chegada > pq->tree[d]->chegada)return e;
+    
+    // Verifica se os filhos existem
+    if(e > pq->fim) return -1; // Sem filhos
+    if(d > pq->fim) return e;  // Só tem filho esquerdo
+    
+    if(pq->tree[e]->urgencia < pq->tree[d]->urgencia) return e;
+    else if(pq->tree[e]->urgencia > pq->tree[d]->urgencia) return d;
+    else{//a ordem de chegada sera criterio de desempate
+        if(pq->tree[e]->chegada < pq->tree[d]->chegada) return e;
         else return d;
     }
 }
@@ -86,14 +90,14 @@ void pq_fix_up(PQ* pq)
 void pq_fix_down(PQ* pq)
 {
     int cur = 0;
-    int filho = maior_filho(pq, cur);
-    while(pq->tree[filho]->urgencia != -1){
+    int filho = menor_filho(pq, cur);
+    while(filho != -1){
         //a ordem de chegada é critério de desempate
         if(pq->tree[cur]->urgencia < pq->tree[filho]->urgencia)break;
-        if(pq->tree[cur]->urgencia == pq->tree[filho]->urgencia && pq->tree[cur]->chegada > pq->tree[filho]->chegada)break;
+        if(pq->tree[cur]->urgencia == pq->tree[filho]->urgencia && pq->tree[cur]->chegada < pq->tree[filho]->chegada)break;
         pq_swap(pq, cur, filho);
         cur = filho;
-        filho = maior_filho(pq, cur); 
+        filho = menor_filho(pq, cur); 
     }
 }
 
@@ -113,8 +117,9 @@ int pq_desenfileirar(PQ* pq)
 {
     if(pq_vazia(pq))return -1;
     int saida = pq->tree[0]->id;//novo nó raiz
-    pq->tree[0] = pq->tree[pq->fim];
-    pq->tree[pq->fim]->urgencia = 6;
+    pq->tree[0]->id = pq->tree[pq->fim]->id;
+    pq->tree[0]->urgencia = pq->tree[pq->fim]->urgencia;
+    pq->tree[0]->chegada = pq->tree[pq->fim]->chegada;
     pq->fim--;
     pq_fix_down(pq);
     return saida;
@@ -127,7 +132,6 @@ bool print_pq(PQ* pq)
     copy->fim = pq->fim;
     copy->ultima_chegada = pq->ultima_chegada;
     for(int i = 0; i < TAM; i++){
-        copy->tree[i] = malloc(sizeof(NO));
         copy->tree[i]->chegada = pq->tree[i]->chegada;
         copy->tree[i]->id = pq->tree[i]->id;
         copy->tree[i]->urgencia = pq->tree[i]->urgencia;
@@ -146,7 +150,7 @@ int get_fim(PQ *pq)
 
 bool buscar_pq(int id, PQ *pq) //função retorna true se o paciente foi achado na fila, false caso contrário
 {
-    for (int i = 0; i < pq->fim; i++)
+    for (int i = 0; i <= pq->fim; i++)
     {
         if (id == pq->tree[i]->id)
         {
@@ -158,7 +162,7 @@ bool buscar_pq(int id, PQ *pq) //função retorna true se o paciente foi achado 
 
 bool save_pq(PQ* pq)
 {
-    if (!pq)
+    if (pq == NULL)
     {
         return false; //salvamento mal sucedido
     }

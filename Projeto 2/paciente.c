@@ -11,7 +11,7 @@ typedef struct paciente_
 {
     int ID;
     char nome[100];
-    HISTORICO historico;
+    HISTORICO* historico;
 } PACIENTE;
 
 int get_ID(PACIENTE *paciente) //função para retornar o ID do paciente
@@ -20,6 +20,7 @@ int get_ID(PACIENTE *paciente) //função para retornar o ID do paciente
     {
         return (paciente->ID);
     }
+    return -1;
 }
 
 char *get_nome_paciente(PACIENTE *paciente) //função para retornar o nome do paciente
@@ -28,18 +29,22 @@ char *get_nome_paciente(PACIENTE *paciente) //função para retornar o nome do p
     {
         return (paciente->nome);
     }
+    return NULL;
 }
 
 HISTORICO* get_historico(PACIENTE* paciente)//retorna o historico
 {
-    return paciente->historico;
+    if(paciente != NULL){
+        return paciente->historico;
+    }
+    return NULL;
 }
 
 bool apagar_paciente(PACIENTE **paciente) //função que deleta o paciente do sistema
 {
     if (*paciente != NULL)
     {
-        apagar_historico((*paciente)->historico);
+        apagar_historico(&((*paciente)->historico));
         free(*paciente);
         *paciente = NULL;
         return (true);
@@ -75,7 +80,7 @@ void imprimir_paciente(PACIENTE* paciente) //imprime as informaçoes sobre o pac
 
 void save_paciente(PACIENTE* paciente, FILE* fptr)//salvar paciente em um arquivo
 {
-    int tamanhoNome = get_tamanho_nome_paciente(paciente);
+    int tamanhoNome = strlen(paciente->nome);
     fwrite(&tamanhoNome, sizeof(int), 1, fptr); //necessario para quando for dar load
     char* nome = get_nome_paciente(paciente);
     fwrite(nome, sizeof(char), tamanhoNome, fptr);
