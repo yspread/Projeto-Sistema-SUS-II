@@ -42,6 +42,7 @@ int main()
                 int id, prioridade;
                 char nome[100];
                 PACIENTE *paciente;
+                PACIENTE *pacienteaux;
                 printf("Digite o ID do paciente:");
                 scanf("%d", &id);
                 clean_buffer();
@@ -49,23 +50,13 @@ int main()
                     printf("ID invalido\n");
                     break;
                 }
-                if (avl_busca(avl, id) == NULL)
+               
+                pacienteaux = avl_busca(avl, id);
+                if (pacienteaux == NULL)
                 {
                     printf("Digite o nome do paciente:");
                     fgets(nome, 99, stdin);
                     nome[strcspn(nome, "\n")] = '\0';
-                    printf("Digite o nível de prioridade do paciente:\n");
-                    printf("1. Emergência\n");
-                    printf("2. Muito Urgente\n");
-                    printf("3. Urgente\n");
-                    printf("4. Pouco Urgente\n");
-                    printf("5. Não Urgência\n\n");
-                    scanf("%d", &prioridade);
-                    if (prioridade <= 0 || prioridade > 5)
-                    {
-                        printf("Prioridade inválida.\n");
-                        break;
-                    }
                     paciente = criar_paciente(id, nome);
                     if (paciente == NULL)
                     {
@@ -80,12 +71,26 @@ int main()
                 }
                 else
                 {
-                    printf("Paciente já registrado.\n");
+                    printf("Paciente já registrado. Seu nome será resgatado no nosso sistema.\n");
                 }
                 if (pq_cheia(pq) == false)
                 {
                     if(buscar_pq(id, pq)){
                         printf("Paciente já está na fila.\n");
+                        break;
+                    }
+                    printf("Digite o nível de prioridade do paciente:\n");
+                    printf("1. Emergência\n");
+                    printf("2. Muito Urgente\n");
+                    printf("3. Urgente\n");
+                    printf("4. Pouco Urgente\n");
+                    printf("5. Não Urgência\n\n");
+                    scanf("%d", &prioridade);
+                    clean_buffer();
+                    if (prioridade <= 0 || prioridade > 5)
+                    {
+                        printf("Prioridade inválida.\n");
+                        break;
                     }
                     else{
                         pq_enfileirar(pq, id, prioridade);
